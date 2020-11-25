@@ -1,54 +1,98 @@
 <template>
-  <div class="login">
-    <h1 class="titulo">Login</h1>
-    <div></div>
-    <form>
-      <label for="email">Email: </label>
-      <input tabindex="1" type="email" id="email" v-model="email">
-      <label for="password">Senha: </label>
-      <input tabindex="2" type="password" id="password" v-model="password" @keydown.enter="logar">
-      <button tabindex="3" class="btn" @click.prevent="logar">{{efeitoBotaoEntrar}}</button>
-    </form>
+  <div >
+    <div v-if="showPage" class="login">
+      <h1 class="titulo">Login</h1>
+      <div></div>
+      <form>
+        <label for="email">Email: </label>
+        <input tabindex="1" type="email" id="email" v-model="email">
+        <label for="password">Senha: </label>
+        <input tabindex="2" type="password" id="password" v-model="password">
+        <button type="submit" tabindex="3" class="btn" @click.prevent="logar">{{efeitoBotaoEntrar}}</button>
+        <PageLoading v-if="btnClicked" />
+      </form>
+    </div>
+    <div v-else>
+      <PageLoading />
+    </div>
   </div>
 </template>
 
 <script>
+
 export default {
   name: "Login",
   data() {
     return {
-      email: "",
-      password: "",
+      email: "luisgssf@gmail.com",
+      password: "123456@Gustavo",
       efeitoBotaoEntrar: "Entrar",
       controleEfeitoBotaoEntrar: false,
-      quantidadePontosEfeito: 0
+      quantidadePontosEfeito: 0,
+      showPage: false,
+      btnClicked: false
+    }
+  },
+  computed: {
+    logged() {
+      return this.$store.state.login.logged
     }
   },
   methods: {
-    logar() {
+    async logar(event) {
+      // console.log(target)
       this.controleEfeitoBotaoEntrar = true
-      this.efeitoEntrar()
+      this.efeitoEntrar(event.target)
+      let user = {}
+      user.email = this.email
+      user.password = this.password
+      user.deviceId = "abc"
+      // console.log(user)
+      try {
+        await this.$store.dispatch("login/login", user)
+        if (this.logged) {
+          this.$router.push( {name: "user"} )
+        }
+        this.controleEfeitoBotaoEntrar = false
+      } catch (error) {
+        alert("B - Sem conexão com o servidor!!!")
+        // console.log(error)
+      }
+      /*
       setTimeout(() => {
         this.controleEfeitoBotaoEntrar = false
-      }, 10000);
+      }, 10000);*/
     },
-    efeitoEntrar() {
-      this.efeitoBotaoEntrar = "Entrando"
-      let interval = setInterval(() => {
-        if (this.controleEfeitoBotaoEntrar) {
-          if (this.quantidadePontosEfeito < 3) {
-            this.efeitoBotaoEntrar += "."
-            this.quantidadePontosEfeito++
-          } else {
-            this.quantidadePontosEfeito = 0
-            this.efeitoBotaoEntrar = "Entrando"
-          }
-        } else {
-          this.efeitoBotaoEntrar = "Entrar"
-          clearInterval(interval)
-        }
-      }, 1000)
+    async getTokenFromStoreAndValidate(next) {
+      let token = window.localStorage.token
+      if(token) {
+        await this.$store.dispatch('login/validateToken', { token })
+          .then( async (response) => {
+            if (response.data && response.data.valid) {
+              await this.$store.dispatch('login/getUserByToken')
+              this.$router.push({name: "home"})
+            } else {
+              this.$router.push({name: 'home'})
+            }
+          })
+      } else {
+        this.showPage = true
+        next()
+      }
+    },
+
+    efeitoEntrar(target) {
+      target.disabled = true
+      target.classList.add("btn-disabled")
+      this.btnClicked = true
     }
+  },
+
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.getTokenFromStoreAndValidate(next)
+      // next()
+    })
   }
 }
 </script>
@@ -93,5 +137,9 @@ export default {
     background: var(--secondary-color);
     color: white;
     transform: scale(1.05);
+  }
+
+  .btn-disabled {
+    background: gray;
   }
 </style>

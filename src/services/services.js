@@ -6,6 +6,19 @@ const newAxiosInstance = axios.create({
   baseURL: urlBase
 })
 
+newAxiosInstance.interceptors.request.use(
+  function(config) {
+    const token = window.localStorage.token;
+    if(token) {
+      config.headers.authorization = token
+    }
+    return config;
+  },
+  function (error) {
+    return Promise.reject(error)
+  }
+)
+
 export const api = {
   get(endpoint) {
     return newAxiosInstance.get(endpoint)

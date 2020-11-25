@@ -2,7 +2,10 @@
   <div id="app">
     <Header />
     <main id="main">
-      <router-view/>
+      <transition mode="out-in">
+        <!-- Coloque uma key se a rota for dinamica (veja o material do site da origamid -->
+        <router-view/>
+      </transition>
     </main>
     <Footer />
   </div>
@@ -112,5 +115,15 @@ export default {
 
   #main {
     flex: 1;
+  }
+
+  /* Animações das transições das rotas */
+  .v-enter, .v-leave-to {
+    transform: translate3d(-20px, 0, 0);
+    opacity: 0;
+  }
+
+  .v-enter-active, .v-leave-active {
+    transition: all 0.3s;
   }
 </style>
