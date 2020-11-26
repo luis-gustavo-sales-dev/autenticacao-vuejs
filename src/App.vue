@@ -57,6 +57,11 @@ export default {
     max-width: 100%;
     display: block;
   }
+
+  h1 {
+    margin: 10px 0px;
+    text-align: center;
+  }
   
   input {
     border: 1px solid var(--main-color);

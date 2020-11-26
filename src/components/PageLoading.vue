@@ -25,9 +25,8 @@ export default {
 }
 
 #container {
-  height: 200px;
   width: 100%;
-  margin-top: 150px;
+  margin-top: 50px;
 }
 
 .balls {

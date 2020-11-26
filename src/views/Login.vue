@@ -1,7 +1,7 @@
 <template>
-  <div >
-    <div v-if="showPage" class="login">
-      <h1 class="titulo">Login</h1>
+  <div>
+    <div v-if="showLoginPage" class="login">
+      <h1>Login</h1>
       <div></div>
       <form>
         <label for="email">Email: </label>
@@ -9,8 +9,12 @@
         <label for="password">Senha: </label>
         <input tabindex="2" type="password" id="password" v-model="password">
         <button type="submit" tabindex="3" class="btn" @click.prevent="logar">{{efeitoBotaoEntrar}}</button>
+        <router-link id="signup" to="/signup">
+          Não tenho conta!!!
+        </router-link>
         <PageLoading v-if="btnClicked" />
       </form>
+      
     </div>
     <div v-else>
       <PageLoading />
@@ -20,29 +24,32 @@
 
 <script>
 
+import { beforeEach } from '../utils/loginRouteUtils'
+
 export default {
   name: "Login",
   data() {
     return {
-      email: "luisgssf@gmail.com",
-      password: "123456@Gustavo",
+      email: "luisgssf1@gmail.com",
+      password: "luisgssf",
       efeitoBotaoEntrar: "Entrar",
-      controleEfeitoBotaoEntrar: false,
       quantidadePontosEfeito: 0,
-      showPage: false,
+      // showPage: true,
       btnClicked: false
     }
   },
   computed: {
     logged() {
       return this.$store.state.login.logged
+    },
+    showLoginPage () {
+      return this.$store.state.screencontrol.showLoginPage
     }
   },
   methods: {
     async logar(event) {
       // console.log(target)
-      this.controleEfeitoBotaoEntrar = true
-      this.efeitoEntrar(event.target)
+      this.efeitoEntrar(event.target, true)
       let user = {}
       user.email = this.email
       user.password = this.password
@@ -53,45 +60,32 @@ export default {
         if (this.logged) {
           this.$router.push( {name: "user"} )
         }
-        this.controleEfeitoBotaoEntrar = false
+        this.efeitoEntrar(event.target, false)
+
       } catch (error) {
         alert("B - Sem conexão com o servidor!!!")
         // console.log(error)
       }
-      /*
-      setTimeout(() => {
-        this.controleEfeitoBotaoEntrar = false
-      }, 10000);*/
     },
-    async getTokenFromStoreAndValidate(next) {
-      let token = window.localStorage.token
-      if(token) {
-        await this.$store.dispatch('login/validateToken', { token })
-          .then( async (response) => {
-            if (response.data && response.data.valid) {
-              await this.$store.dispatch('login/getUserByToken')
-              this.$router.push({name: "home"})
-            } else {
-              this.$router.push({name: 'home'})
-            }
-          })
+    // Método repetivo. Tem que ir para algum lugar em comum
+    efeitoEntrar(target, ativar) {
+      if (ativar) {
+        target.disabled = true
+        target.classList.add("btn-disabled")
+        this.btnClicked = true
       } else {
-        this.showPage = true
-        next()
+        target.disabled = false
+        target.classList.remove("btn-disabled")
+        this.btnClicked = false
       }
-    },
-
-    efeitoEntrar(target) {
-      target.disabled = true
-      target.classList.add("btn-disabled")
-      this.btnClicked = true
     }
-  },
 
+  },
   beforeRouteEnter (to, from, next) {
+    // console.log("beforeRouteEnter: LOGIN")
     next(vm => {
-      vm.getTokenFromStoreAndValidate(next)
-      // next()
+      vm.$store.commit('screencontrol/CHANGE_SHOW_LOGIN_PAGE', false)
+      beforeEach(to, from, next, vm.$store, vm.$router)
     })
   }
 }
@@ -108,8 +102,6 @@ export default {
 
   .login h1 {
     grid-column: 1 / 4;
-    margin: 20px 0px;
-    text-align: center;
   }
 
   .login form {
@@ -133,13 +125,12 @@ export default {
     width: 100%;
   }
 
-  .btn:focus {
-    background: var(--secondary-color);
-    color: white;
-    transform: scale(1.05);
-  }
-
   .btn-disabled {
     background: gray;
+  }
+
+  #signup {
+    display: block;
+    text-align: center;
   }
 </style>

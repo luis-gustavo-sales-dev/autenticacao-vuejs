@@ -64,6 +64,8 @@ export default {
 
   .botaodeslogar {
     position: absolute;
+    height: 30px;
+    width: 30px;
     top: -10px;
     right: -10px;
     display: block;
@@ -72,14 +74,14 @@ export default {
     border-radius: 50%;
     color: white;
     cursor: pointer;
+    text-align: center;
     transition: all 0.3s;
   }
 
   .botaodeslogar:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
     color: red;
-    background: white;
-    border: 2px solid red;
+    
   }
   
 </style>

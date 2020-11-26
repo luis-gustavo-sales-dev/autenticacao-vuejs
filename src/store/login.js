@@ -11,6 +11,7 @@ export default {
       name: '',
       email: '',
       role: '',
+      active: '',
       password: ''
     }
   },
@@ -43,10 +44,10 @@ export default {
       })
     },
     getUserByToken(context) {
-      console.log("Tentando pegar usuário pelo token")
+      // console.log("Tentando pegar usuário pelo token")
       return api.get('/user')
         .then( response => {
-          console.log("Dados do usuário", response.data)
+          // console.log("Dados do usuário", response.data)
           let userData = response.data
           context.commit("UPDATE_USER", userData)
           context.commit("CHANGE_LOGGED", true)
@@ -76,9 +77,7 @@ export default {
       context.commit("UPDATE_USER", user)
     },
     signup (context, payload) {
-      return api.post('/auth/signup', payload).then( response => {
-        console.log(response.data)
-      })
+      return api.post('/auth/signup', payload)
     }
   }
 }
