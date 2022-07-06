@@ -24,6 +24,7 @@ const getTokenFromStoreAndValidate = async (to, from, next, store, router) => {
           
         } else {
           // NAO POSSUI UM TOKEN VALIDO
+          window.localStorage.token = ""
           // Se tentar acessar uma página bloqueada vai para login se não continue
           if (!isBlockPage)
             next()
@@ -32,9 +33,8 @@ const getTokenFromStoreAndValidate = async (to, from, next, store, router) => {
         }
       })
   } else {
+    // NÃO POSSUI TOKEN
     store.commit('screencontrol/CHANGE_SHOW_LOGIN_PAGE', true)
-    // store.state.screencontrol.showPage = true
-    // console.log(isBlockPage)
 
     if (!isBlockPage) {
       store.commit('screencontrol/CHANGE_SHOW_PAGE', true)
